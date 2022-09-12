@@ -9,7 +9,7 @@
             @touchend="touchEnd($event, index)"
         >
             Pull to delete item
-            <div class="pull-button"></div>
+            <div class="pull-button">Delete</div>
         </div>
     </div>
 </template>
@@ -55,6 +55,7 @@ export default {
         moveBlockToTouchPos(event) {
             let target = event.target;
             target.style.left = this.movePos + "px";
+            target.children[0].style.right = this.movePos + "px";
         },
         touchMove(event) {
             if (this.elIsMoving) {
@@ -104,6 +105,14 @@ export default {
     color: #4c4c4c;
     box-sizing: border-box;
     position: relative;
+    background-color: rgb(198, 213, 228);
     // touch-action: none;
+}
+
+.pull-button {
+    background-color: red;
+    position: absolute;
+    left: 100%;
+    top: 0;
 }
 </style>
