@@ -25,46 +25,58 @@ export default {
             startPosX: 0,
             posY: 0,
             divY: 0,
-            diffY: 0,
             startPosY: 0,
-            distanceMoved: 0,
             elIsMoving: false,
-            isScrolling: false,
-            scrollingIsActivated: false
+            isScrolling: false
         };
     },
+    computed: {
+        movePos() {
+            return this.posX - this.diffX;
+        },
+        passXThreshold() {
+            return this.passMoveThresh(this.startPosX, this.posX);
+        },
+        passYThreshold() {
+            return this.passMoveThresh(this.startPosY, this.posY);
+        }
+    },
     methods: {
+        passMoveThresh(initialPos, currentPos) {
+            return Math.abs(currentPos - initialPos) > 2;
+        },
         touchStart(event) {
             this.posX = event.targetTouches[0].clientX;
-            // this.startPosX = event.targetTouches[0].clientX
             this.startPosX = this.posX;
             this.startPosY = event.targetTouches[0].pageY;
             this.divX = event.target.style.left.replace("px", "");
             this.diffX = this.posX - this.divX;
+        },
+        moveBlockToTouchPos(event) {
+            let target = event.target;
+            target.style.left = this.movePos + "px";
         },
         touchMove(event) {
             if (this.elIsMoving) {
                 event.preventDefault();
             }
 
-            this.posX = event.targetTouches[0].clientX;
-            let aX = this.posX - this.diffX;
+            this.setXYPositions(event);
 
-            let posY = event.targetTouches[0].pageY;
-
-            if (Math.abs(this.posX - this.startPosX) > 3 && !this.isScrolling) {
-                event.preventDefault();
-                this.elIsMoving = true;
-                let target = event.target;
-                target.style.left = aX + "px";
-            } else if (
-                Math.abs(posY - this.startPosY) > 3 &&
-                !this.scrollingIsActivated &&
-                !this.elIsMoving
-            ) {
+            if (this.passXThreshold && !this.isScrolling) {
+                this.horizontalTouchMovement(event);
+            } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
-                this.scrollingIsActivated = true;
             }
+        },
+        setXYPositions(event) {
+            this.posX = event.targetTouches[0].clientX;
+            this.posY = event.targetTouches[0].pageY;
+        },
+        horizontalTouchMovement(event) {
+            event.preventDefault();
+            this.elIsMoving = true;
+            this.moveBlockToTouchPos(event);
         },
         touchEnd() {
             this.elIsMoving = false;
