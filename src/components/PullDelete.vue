@@ -1,15 +1,22 @@
 <template>
     <div id="pull-container">
         <div
+            class="pull-item"
             v-for="(item, index) in items"
             :key="index"
-            class="pull-item"
             @touchstart="touchStart($event, index)"
             @touchmove="touchMove($event, index)"
             @touchend="touchEnd($event, index)"
         >
-            Pull to delete item
-            <div class="pull-button">Delete</div>
+            <div class="pull-item-content-container">
+                <div class="pull-item-content">Pull to delete item</div>
+            </div>
+            <div class="pull-button-container">
+                <div class="pull-button">
+                    <div>Delete</div>
+                </div>
+            </div>
+            <hr />
         </div>
     </div>
 </template>
@@ -45,17 +52,33 @@ export default {
         passMoveThresh(initialPos, currentPos) {
             return Math.abs(currentPos - initialPos) > 2;
         },
+        getParentPullItem(element) {
+            if (element.className.match(/pull-item$/)) {
+                return element;
+            }
+            return this.getParentPullItem(element.parentElement);
+        },
         touchStart(event) {
             this.posX = event.targetTouches[0].clientX;
-            this.startPosX = this.posX;
-            this.startPosY = event.targetTouches[0].pageY;
-            this.divX = event.target.style.left.replace("px", "");
+
+            this.setStartPositions(event);
+
+            let element = this.getParentPullItem(event.target);
+            this.divX = element.style.left.replace("px", "");
             this.diffX = this.posX - this.divX;
         },
+        setStartPositions(event) {
+            this.startPosX = this.posX;
+            this.startPosY = event.targetTouches[0].pageY;
+        },
         moveBlockToTouchPos(event) {
-            let target = event.target;
-            target.style.left = this.movePos + "px";
-            target.children[0].style.right = this.movePos + "px";
+            let element = event.target;
+            if (!element.className.match(/pull-item$/)) {
+                element = this.getParentPullItem(element);
+            }
+
+            element.style.left = this.movePos + "px";
+            element.children[1].style.right = this.movePos + "px";
         },
         touchMove(event) {
             if (this.elIsMoving) {
@@ -63,7 +86,12 @@ export default {
             }
 
             this.setXYPositions(event);
-
+            let target = event.target;
+            if (target.className.match(/pull-item/)) {
+                this.togglePullItem(event);
+            }
+        },
+        togglePullItem(event) {
             if (this.passXThreshold && !this.isScrolling) {
                 this.horizontalTouchMovement(event);
             } else if (this.passYThreshold && !this.elIsMoving) {
@@ -89,30 +117,38 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+hr {
+    margin: 0;
+    border: 1px solid lightseagreen;
+}
+
 #pull-container {
     overflow: hidden;
 }
 
 .pull-item {
     text-align: center;
-    font-size: 5em;
+    font-size: 2em;
     font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif;
-    border-color: #b8bcba;
-    border-style: solid;
-    border-width: 1px 0;
-    padding-left: 0.5rem;
     color: #4c4c4c;
-    box-sizing: border-box;
     position: relative;
     background-color: rgb(198, 213, 228);
-    // touch-action: none;
 }
 
 .pull-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 0 10px;
+}
+
+.pull-button-container {
     background-color: red;
     position: absolute;
     left: 100%;
     top: 0;
+    bottom: 0;
 }
 </style>
