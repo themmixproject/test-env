@@ -34,7 +34,8 @@ export default {
             divY: 0,
             startPosY: 0,
             elIsMoving: false,
-            isScrolling: false
+            isScrolling: false,
+            isHorizontalTouch: false
         };
     },
     computed: {
@@ -50,7 +51,7 @@ export default {
     },
     methods: {
         passMoveThresh(initialPos, currentPos) {
-            return Math.abs(currentPos - initialPos) > 2;
+            return Math.abs(currentPos - initialPos) > 9;
         },
         getParentPullItem(element) {
             if (element.className.match(/pull-item$/)) {
@@ -88,11 +89,14 @@ export default {
             this.setXYPositions(event);
             let target = event.target;
             if (target.className.match(/pull-item/)) {
-                this.togglePullItem(event);
+                this.controlPullItem(event);
             }
         },
-        togglePullItem(event) {
-            if (this.passXThreshold && !this.isScrolling) {
+        controlPullItem(event) {
+            if (this.passXThreshold && !this.isHorizontalTouch) {
+                this.isHorizontalTouch = true;
+            }
+            if (this.horizontalTouchMovement && !this.isScrolling) {
                 this.horizontalTouchMovement(event);
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
