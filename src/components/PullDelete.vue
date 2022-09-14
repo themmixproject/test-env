@@ -134,7 +134,7 @@ export default {
 
             this.elIsMoving = false;
             this.isScrolling = false;
-            this.scrollingIsActivated = false;
+            this.isHorizontalTouch = false;
         }
     },
     mounted() {
