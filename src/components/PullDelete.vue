@@ -4,6 +4,7 @@
             class="pull-item"
             v-for="(item, index) in items"
             :key="index"
+            :class="{ trans: isTrans[index] }"
             @touchstart="touchStart($event, index)"
             @touchmove="touchMove($event, index)"
             @touchend="touchEnd($event, index)"
@@ -25,7 +26,11 @@
 export default {
     data() {
         return {
-            items: [0, 0, 0, 0, 0],
+            items: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0
+            ],
+            isTrans: [],
             posX: 0,
             divX: 0,
             diffX: 0,
@@ -50,6 +55,13 @@ export default {
         }
     },
     methods: {
+        setAll(a, v) {
+            var i,
+                n = a.length;
+            for (i = 0; i < n; ++i) {
+                a[i] = v;
+            }
+        },
         passMoveThresh(initialPos, currentPos) {
             return Math.abs(currentPos - initialPos) > 9;
         },
@@ -60,6 +72,8 @@ export default {
             return this.getParentPullItem(element.parentElement);
         },
         touchStart(event) {
+            this.setAll(this.isTrans, false);
+
             this.posX = event.targetTouches[0].clientX;
 
             this.setStartPositions(event);
@@ -95,11 +109,11 @@ export default {
         controlPullItem(event) {
             if (this.passXThreshold && !this.isHorizontalTouch) {
                 this.isHorizontalTouch = true;
-            }
-            if (this.horizontalTouchMovement && !this.isScrolling) {
-                this.horizontalTouchMovement(event);
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
+            }
+            if (this.isHorizontalTouch && !this.isScrolling) {
+                this.horizontalTouchMovement(event);
             }
         },
         setXYPositions(event) {
@@ -111,10 +125,21 @@ export default {
             this.elIsMoving = true;
             this.moveBlockToTouchPos(event);
         },
-        touchEnd() {
+        touchEnd(event, index) {
+            if (event.target.className.match(/pull-item/) && !this.elIsMoving) {
+                this.isTrans[index] = true;
+                let element = this.getParentPullItem(event.target);
+                element.style.left = 0;
+            }
+
             this.elIsMoving = false;
             this.isScrolling = false;
             this.scrollingIsActivated = false;
+        }
+    },
+    mounted() {
+        for (let i = 0; i < this.items.length; i++) {
+            this.isTrans.push(false);
         }
     }
 };
@@ -138,6 +163,7 @@ hr {
     color: #4c4c4c;
     position: relative;
     background-color: rgb(198, 213, 228);
+    // transition: 0.01s left ease;
 }
 
 .pull-button {
@@ -154,5 +180,9 @@ hr {
     left: 100%;
     top: 0;
     bottom: 0;
+}
+
+.trans {
+    transition: all 0.4s;
 }
 </style>
