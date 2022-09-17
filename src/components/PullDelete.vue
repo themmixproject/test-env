@@ -34,24 +34,32 @@ export default {
             posX: 0,
             divX: 0,
             diffX: 0,
+            movePos: 0,
             startPosX: 0,
             posY: 0,
             divY: 0,
             startPosY: 0,
             elIsMoving: false,
             isScrolling: false,
-            isHorizontalTouch: false
+            isHorizontalTouch: false,
+            selectedIndex: null,
+            pullThreshold: 0,
+            pullComplete: false
         };
     },
     computed: {
-        movePos() {
-            return this.posX - this.diffX;
-        },
+        // movePos() {
+        //     return this.posX - this.diffX;
+        // },
         passXThreshold() {
             return this.passMoveThresh(this.startPosX, this.posX);
         },
         passYThreshold() {
             return this.passMoveThresh(this.startPosY, this.posY);
+        },
+        pullContainerHasChildren() {
+            let container = document.getElementById("pull-container");
+            return this.hasChildren(container);
         }
     },
     methods: {
@@ -72,8 +80,6 @@ export default {
             return this.getParentPullItem(element.parentElement);
         },
         touchStart(event) {
-            this.setAll(this.isTrans, false);
-
             this.posX = event.targetTouches[0].clientX;
 
             this.setStartPositions(event);
@@ -82,18 +88,12 @@ export default {
             this.divX = element.style.left.replace("px", "");
             this.diffX = this.posX - this.divX;
         },
+        hasChildren(element) {
+            return element.children.length > 0;
+        },
         setStartPositions(event) {
             this.startPosX = this.posX;
             this.startPosY = event.targetTouches[0].pageY;
-        },
-        moveBlockToTouchPos(event) {
-            let element = event.target;
-            if (!element.className.match(/pull-item$/)) {
-                element = this.getParentPullItem(element);
-            }
-
-            element.style.left = this.movePos + "px";
-            element.children[1].style.right = this.movePos + "px";
         },
         touchMove(event) {
             if (this.elIsMoving) {
@@ -125,21 +125,76 @@ export default {
             this.elIsMoving = true;
             this.moveBlockToTouchPos(event);
         },
-        touchEnd(event, index) {
-            if (event.target.className.match(/pull-item/) && !this.elIsMoving) {
-                this.isTrans[index] = true;
-                let element = this.getParentPullItem(event.target);
-                element.style.left = 0;
+        moveBlockToTouchPos(event) {
+            let element = event.target;
+            if (!element.className.match(/pull-item$/)) {
+                element = this.getParentPullItem(element);
+            }
+
+            this.movePos = this.posX - this.diffX;
+            let absMovePos = Math.abs(this.movePos);
+
+            if (this.movePos > 0) {
+                this.movePos = 0;
+            } else if (absMovePos > this.pullThreshold) {
+                this.movePos = -this.pullThreshold;
+                this.pullIsComplete = true;
+            }
+
+            element.style.left = this.movePos + "px";
+            element.children[1].style.right = this.movePos + "px";
+        },
+        touchEnd(event) {
+            let element = this.getParentPullItem(event.target);
+            if (
+                Math.abs(this.movePos) >= this.pullThreshold / 2 &&
+                this.elIsMoving &&
+                !this.pullIsComplete
+            ) {
+                this.moveItem(element, -this.pullThreshold);
+            } else if (
+                (event.target.className.match(/pull-item/) &&
+                    !this.elIsMoving) ||
+                (Math.abs(this.movePos) < this.pullThreshold / 2 &&
+                    this.elIsMoving)
+            ) {
+                this.resetItemPosition(element);
             }
 
             this.elIsMoving = false;
             this.isScrolling = false;
             this.isHorizontalTouch = false;
+            this.pullIsComplete = false;
+        },
+        resetItemPosition(pullItem) {
+            this.moveItem(pullItem, 0);
+        },
+        moveItem(pullItem, left) {
+            console.log("start");
+
+            let duration = 400;
+
+            pullItem.style.transition = "left ease " + duration / 1000 + "s";
+            pullItem.children[1].style.transition =
+                "right ease " + duration / 1000 + "s";
+            pullItem.style.left = left + "px";
+            pullItem.children[1].style.right = left + "px";
+            window.setTimeout(function () {
+                pullItem.style.transition = null;
+                pullItem.children[1].style.transition = null;
+
+                console.log("end");
+            }, duration);
         }
     },
     mounted() {
-        for (let i = 0; i < this.items.length; i++) {
-            this.isTrans.push(false);
+        let container = document.getElementById("pull-container");
+        if (this.pullContainerHasChildren) {
+            let button = container.getElementsByClassName(
+                "pull-button-container"
+            )[0];
+            this.pullThreshold = button.offsetWidth;
+            console.group(button.offsetWidth);
         }
     }
 };
