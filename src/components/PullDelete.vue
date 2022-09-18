@@ -44,7 +44,8 @@ export default {
             isHorizontalTouch: false,
             selectedIndex: null,
             pullThreshold: 0,
-            pullComplete: false
+            pullComplete: false,
+            counter: 0
         };
     },
     computed: {
@@ -137,20 +138,31 @@ export default {
             if (this.movePos > 0) {
                 this.movePos = 0;
             } else if (absMovePos > this.pullThreshold) {
-                this.movePos = -this.pullThreshold;
+                this.movePos = this.stretchPull(element.style.left);
                 this.pullIsComplete = true;
             }
 
             element.style.left = this.movePos + "px";
             element.children[1].style.right = this.movePos + "px";
         },
+        stretchPull(left) {
+            this.counter += 0.15;
+            let pullDistance =
+                Math.abs(this.movePos) - Math.abs(left.replace("px", ""));
+            let dampen = pullDistance / (pullDistance * this.counter);
+            let pos = Math.abs(this.movePos) - pullDistance + dampen;
+
+            return -pos;
+        },
         touchEnd(event) {
             let element = this.getParentPullItem(event.target);
             if (
-                Math.abs(this.movePos) >= this.pullThreshold / 2 &&
-                this.elIsMoving &&
-                !this.pullIsComplete
+                (Math.abs(this.movePos) >= this.pullThreshold / 2 &&
+                    this.elIsMoving &&
+                    !this.pullIsComplete) ||
+                this.pullIsComplete
             ) {
+                console.log("finishPull");
                 this.moveItem(element, -this.pullThreshold);
             } else if (
                 (event.target.className.match(/pull-item/) &&
@@ -165,6 +177,7 @@ export default {
             this.isScrolling = false;
             this.isHorizontalTouch = false;
             this.pullIsComplete = false;
+            this.counter = 0;
         },
         resetItemPosition(pullItem) {
             this.moveItem(pullItem, 0);
@@ -194,7 +207,6 @@ export default {
                 "pull-button-container"
             )[0];
             this.pullThreshold = button.offsetWidth;
-            console.group(button.offsetWidth);
         }
     }
 };
