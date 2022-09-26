@@ -48,9 +48,6 @@ export default {
         };
     },
     computed: {
-        // movePos() {
-        //     return this.posX - this.diffX;
-        // },
         passXThreshold() {
             return this.passMoveThresh(this.startPosX, this.posX);
         },
@@ -71,7 +68,7 @@ export default {
             }
         },
         passMoveThresh(initialPos, currentPos) {
-            return Math.abs(currentPos - initialPos) > 9;
+            return Math.abs(currentPos - initialPos) > 3;
         },
         getParentPullItem(element) {
             if (element.className.match(/pull-item$/)) {
