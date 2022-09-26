@@ -35,7 +35,6 @@ export default {
             divX: 0,
             diffX: 0,
             movePos: 0,
-            oldMovePos: 0,
             startPosX: 0,
             posY: 0,
             divY: 0,
@@ -45,8 +44,7 @@ export default {
             isHorizontalTouch: false,
             selectedIndex: null,
             pullThreshold: 0,
-            pullComplete: false,
-            counter: 0
+            pullComplete: false
         };
     },
     computed: {
@@ -151,29 +149,9 @@ export default {
             this.oldMovePos = this.movePos;
         },
         stretchPull() {
-            // if (this.movePos < this.oldMovePos) {
-            //     // console.log("left");
-            //     this.counter -= 0.5;
-            // } else {
-            //     // console.log("right");
-            //     this.counter += 0.5;
-            // }
-
             let friction = 0.8;
             let pullDistance = Math.abs(this.movePos) - this.pullThreshold;
             let pos = this.pullThreshold + pullDistance ** friction;
-            // console.log(
-            //     "relative pull distance: " +
-            //         damp +
-            //         "\npulldistance: " +
-            //         pullDistance +
-            //         "\ndampen: " +
-            //         dampen +
-            //         "\npos:" +
-            //         pos +
-            //         "\nmovePos: " +
-            //         this.movePos
-            // );
 
             return -pos;
         },
@@ -200,7 +178,6 @@ export default {
             this.isScrolling = false;
             this.isHorizontalTouch = false;
             this.pullIsComplete = false;
-            this.counter = 0;
         },
         resetItemPosition(pullItem) {
             this.moveItem(pullItem, 0);
