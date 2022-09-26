@@ -76,14 +76,22 @@ export default {
             }
             return this.getParentPullItem(element.parentElement);
         },
-        touchStart(event) {
+        touchStart(event, index) {
             this.posX = event.targetTouches[0].clientX;
 
-            this.setStartPositions(event);
-
-            let element = this.getParentPullItem(event.target);
-            this.divX = element.style.left.replace("px", "");
-            this.diffX = this.posX - this.divX;
+            if (event.target.className.match(/pull-item/)) {
+                this.setStartPositions(event);
+                let element = this.getParentPullItem(event.target);
+                this.divX = element.style.left.replace("px", "");
+                this.diffX = this.posX - this.divX;
+                console.assert(this.selectedIndex);
+                if (
+                    this.selectedIndex !== null &&
+                    this.selectedIndex !== index
+                ) {
+                    this.resetElementFromSelectedIndex(element);
+                }
+            }
         },
         hasChildren(element) {
             return element.children.length > 0;
@@ -92,7 +100,7 @@ export default {
             this.startPosX = this.posX;
             this.startPosY = event.targetTouches[0].pageY;
         },
-        touchMove(event) {
+        touchMove(event, index) {
             if (this.elIsMoving) {
                 event.preventDefault();
             }
@@ -100,7 +108,7 @@ export default {
             this.setXYPositions(event);
             let target = event.target;
             if (target.className.match(/pull-item/)) {
-                this.controlPullItem(event);
+                this.controlPullItem(event, index);
             }
         },
         controlPullItem(event) {
@@ -108,6 +116,9 @@ export default {
                 this.isHorizontalTouch = true;
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
+                if (this.selectedIndex !== null) {
+                    this.resetElementFromSelectedIndex(event.target);
+                }
             }
             if (this.isHorizontalTouch && !this.isScrolling) {
                 this.horizontalTouchMovement(event);
@@ -116,6 +127,14 @@ export default {
         setXYPositions(event) {
             this.posX = event.targetTouches[0].clientX;
             this.posY = event.targetTouches[0].pageY;
+        },
+        resetElementFromSelectedIndex(target) {
+            let element =
+                this.getParentPullItem(target).parentElement.children[
+                    this.selectedIndex
+                ];
+            this.resetItemPosition(element);
+            this.selectedIndex = null;
         },
         horizontalTouchMovement(event) {
             event.preventDefault();
@@ -152,7 +171,7 @@ export default {
 
             return -pos;
         },
-        touchEnd(event) {
+        touchEnd(event, index) {
             let element = this.getParentPullItem(event.target);
             if (
                 (Math.abs(this.movePos) >= this.pullThreshold / 2 &&
@@ -162,6 +181,7 @@ export default {
             ) {
                 console.log("finishPull");
                 this.moveItem(element, -this.pullThreshold);
+                this.selectedIndex = index;
             } else if (
                 (event.target.className.match(/pull-item/) &&
                     !this.elIsMoving) ||
