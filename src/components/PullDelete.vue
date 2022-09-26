@@ -35,6 +35,7 @@ export default {
             divX: 0,
             diffX: 0,
             movePos: 0,
+            oldMovePos: 0,
             startPosX: 0,
             posY: 0,
             divY: 0,
@@ -138,19 +139,41 @@ export default {
             if (this.movePos > 0) {
                 this.movePos = 0;
             } else if (absMovePos > this.pullThreshold) {
-                this.movePos = this.stretchPull(element.style.left);
+                this.movePos = this.stretchPull(element);
                 this.pullIsComplete = true;
+            } else if (absMovePos < this.pullThreshold) {
+                this.counter = 0;
             }
 
             element.style.left = this.movePos + "px";
             element.children[1].style.right = this.movePos + "px";
+
+            this.oldMovePos = this.movePos;
         },
-        stretchPull(left) {
-            this.counter += 0.15;
-            let pullDistance =
-                Math.abs(this.movePos) - Math.abs(left.replace("px", ""));
-            let dampen = pullDistance / (pullDistance * this.counter);
-            let pos = Math.abs(this.movePos) - pullDistance + dampen;
+        stretchPull() {
+            // if (this.movePos < this.oldMovePos) {
+            //     // console.log("left");
+            //     this.counter -= 0.5;
+            // } else {
+            //     // console.log("right");
+            //     this.counter += 0.5;
+            // }
+
+            let friction = 0.8;
+            let pullDistance = Math.abs(this.movePos) - this.pullThreshold;
+            let pos = this.pullThreshold + pullDistance ** friction;
+            // console.log(
+            //     "relative pull distance: " +
+            //         damp +
+            //         "\npulldistance: " +
+            //         pullDistance +
+            //         "\ndampen: " +
+            //         dampen +
+            //         "\npos:" +
+            //         pos +
+            //         "\nmovePos: " +
+            //         this.movePos
+            // );
 
             return -pos;
         },
@@ -183,7 +206,7 @@ export default {
             this.moveItem(pullItem, 0);
         },
         moveItem(pullItem, left) {
-            console.log("start");
+            // console.log("start");
 
             let duration = 400;
 
@@ -196,7 +219,7 @@ export default {
                 pullItem.style.transition = null;
                 pullItem.children[1].style.transition = null;
 
-                console.log("end");
+                // console.log("end");
             }, duration);
         }
     },
