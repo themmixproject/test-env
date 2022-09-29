@@ -31,6 +31,7 @@ export default {
                 0, 0
             ],
             isTrans: [],
+            playingAnimations: {},
             posX: 0,
             divX: 0,
             diffX: 0,
@@ -84,12 +85,11 @@ export default {
                 let element = this.getParentPullItem(event.target);
                 this.divX = element.style.left.replace("px", "");
                 this.diffX = this.posX - this.divX;
-                console.assert(this.selectedIndex);
                 if (
                     this.selectedIndex !== null &&
                     this.selectedIndex !== index
                 ) {
-                    this.resetElementFromSelectedIndex(element);
+                    this.resetElementFromSelectedIndex(element, index);
                 }
             }
         },
@@ -101,7 +101,7 @@ export default {
             this.startPosY = event.targetTouches[0].pageY;
         },
         touchMove(event, index) {
-            if (this.elIsMoving) {
+            if (this.elIsMoving || event.targetTouches.length > 1) {
                 event.preventDefault();
             }
 
@@ -111,16 +111,25 @@ export default {
                 this.controlPullItem(event, index);
             }
         },
-        controlPullItem(event) {
+        controlPullItem(event, index) {
             if (this.passXThreshold && !this.isHorizontalTouch) {
                 this.isHorizontalTouch = true;
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
                 if (this.selectedIndex !== null) {
-                    this.resetElementFromSelectedIndex(event.target);
+                    this.resetElementFromSelectedIndex(event.target, index);
                 }
             }
             if (this.isHorizontalTouch && !this.isScrolling) {
+                if (this.playingAnimations[index]) {
+                    clearTimeout(this.playingAnimations[index]);
+
+                    let pullItem = this.getParentPullItem(event.target);
+                    pullItem.style.transition = null;
+                    pullItem.children[1].style.transition = null;
+
+                    delete this.playingAnimations[index];
+                }
                 this.horizontalTouchMovement(event);
             }
         },
@@ -128,12 +137,12 @@ export default {
             this.posX = event.targetTouches[0].clientX;
             this.posY = event.targetTouches[0].pageY;
         },
-        resetElementFromSelectedIndex(target) {
+        resetElementFromSelectedIndex(target, index) {
             let element =
                 this.getParentPullItem(target).parentElement.children[
                     this.selectedIndex
                 ];
-            this.resetItemPosition(element);
+            this.resetItemPosition(element, index);
             this.selectedIndex = null;
         },
         horizontalTouchMovement(event) {
@@ -180,7 +189,7 @@ export default {
                 this.pullIsComplete
             ) {
                 console.log("finishPull");
-                this.moveItem(element, -this.pullThreshold);
+                this.moveItem(element, -this.pullThreshold, index);
                 this.selectedIndex = index;
             } else if (
                 (event.target.className.match(/pull-item/) &&
@@ -188,7 +197,7 @@ export default {
                 (Math.abs(this.movePos) < this.pullThreshold / 2 &&
                     this.elIsMoving)
             ) {
-                this.resetItemPosition(element);
+                this.resetItemPosition(element, index);
             }
 
             this.elIsMoving = false;
@@ -196,12 +205,10 @@ export default {
             this.isHorizontalTouch = false;
             this.pullIsComplete = false;
         },
-        resetItemPosition(pullItem) {
-            this.moveItem(pullItem, 0);
+        resetItemPosition(pullItem, index) {
+            this.moveItem(pullItem, 0, index);
         },
-        moveItem(pullItem, left) {
-            // console.log("start");
-
+        moveItem(pullItem, left, index) {
             let duration = 400;
 
             pullItem.style.transition = "left ease " + duration / 1000 + "s";
@@ -209,12 +216,18 @@ export default {
                 "right ease " + duration / 1000 + "s";
             pullItem.style.left = left + "px";
             pullItem.children[1].style.right = left + "px";
-            window.setTimeout(function () {
+
+            this.playingAnimations[index] = setTimeout(function () {
                 pullItem.style.transition = null;
                 pullItem.children[1].style.transition = null;
-
-                // console.log("end");
             }, duration);
+
+            // window.setTimeout(function () {
+            //     pullItem.style.transition = null;
+            //     pullItem.children[1].style.transition = null;
+
+            //     // console.log("end");
+            // }, duration);
         }
     },
     mounted() {
