@@ -218,13 +218,13 @@ export default {
             pullItem.style.left = left + "px";
             pullItem.children[1].style.right = left + "px";
 
-            this.playingAnimations[parseInt(index)] = setTimeout(function () {
+            this.playingAnimations[parseInt(index)] = setTimeout(() => {
                 pullItem.style.transition = null;
                 pullItem.children[1].style.transition = null;
 
-                // if (this.playingAnimations[parseInt(index)]) {
-                //     delete this.playingAnimations[parseInt(index)];
-                // }
+                if (this.playingAnimations[parseInt(index)]) {
+                    delete this.playingAnimations[parseInt(index)];
+                }
             }, duration);
 
             // window.setTimeout(function () {
