@@ -121,14 +121,16 @@ export default {
                 }
             }
             if (this.isHorizontalTouch && !this.isScrolling) {
-                if (this.playingAnimations[index]) {
-                    clearTimeout(this.playingAnimations[index]);
+                if (this.playingAnimations[parseInt(index)]) {
+                    clearTimeout(this.playingAnimations[parseInt(index)]);
+
+                    console.log("animation is playing");
 
                     let pullItem = this.getParentPullItem(event.target);
                     pullItem.style.transition = null;
                     pullItem.children[1].style.transition = null;
 
-                    delete this.playingAnimations[index];
+                    delete this.playingAnimations[parseInt(index)];
                 }
                 this.horizontalTouchMovement(event);
             }
@@ -188,7 +190,7 @@ export default {
                     !this.pullIsComplete) ||
                 this.pullIsComplete
             ) {
-                console.log("finishPull");
+                // console.log("finishPull");
                 this.moveItem(element, -this.pullThreshold, index);
                 this.selectedIndex = index;
             } else if (
@@ -210,16 +212,19 @@ export default {
         },
         moveItem(pullItem, left, index) {
             let duration = 400;
-
             pullItem.style.transition = "left ease " + duration / 1000 + "s";
             pullItem.children[1].style.transition =
                 "right ease " + duration / 1000 + "s";
             pullItem.style.left = left + "px";
             pullItem.children[1].style.right = left + "px";
 
-            this.playingAnimations[index] = setTimeout(function () {
+            this.playingAnimations[parseInt(index)] = setTimeout(function () {
                 pullItem.style.transition = null;
                 pullItem.children[1].style.transition = null;
+
+                // if (this.playingAnimations[parseInt(index)]) {
+                //     delete this.playingAnimations[parseInt(index)];
+                // }
             }, duration);
 
             // window.setTimeout(function () {
