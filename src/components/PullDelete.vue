@@ -211,6 +211,14 @@ export default {
             this.moveItem(pullItem, 0, index);
         },
         moveItem(pullItem, left, index) {
+            if (this.playingAnimations[parseInt(index)]) {
+                clearTimeout(this.playingAnimations);
+
+                pullItem.style.transition = null;
+                pullItem.children[1].style.transition = null;
+                delete this.playingAnimations[parseInt(index)];
+            }
+
             let duration = 400;
             pullItem.style.transition = "left ease " + duration / 1000 + "s";
             pullItem.children[1].style.transition =
