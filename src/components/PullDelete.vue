@@ -12,7 +12,7 @@
             <div class="pull-item-content-container">
                 <div class="pull-item-content">Pull to delete item</div>
             </div>
-            <div class="pull-button-container">
+            <div id="pull-button-container" class="pull-button-container">
                 <div class="pull-button">
                     <div>Delete</div>
                 </div>
@@ -69,7 +69,7 @@ export default {
             }
         },
         passMoveThresh(initialPos, currentPos) {
-            return Math.abs(currentPos - initialPos) > 3;
+            return Math.abs(currentPos - initialPos) > 2;
         },
         getParentPullItem(element) {
             if (element.className.match(/pull-item$/)) {
@@ -77,7 +77,7 @@ export default {
             }
             return this.getParentPullItem(element.parentElement);
         },
-        touchStart(event, index) {
+        touchStart(event) {
             this.posX = event.targetTouches[0].clientX;
 
             if (event.target.className.match(/pull-item/)) {
@@ -85,12 +85,6 @@ export default {
                 let element = this.getParentPullItem(event.target);
                 this.divX = element.style.left.replace("px", "");
                 this.diffX = this.posX - this.divX;
-                if (
-                    this.selectedIndex !== null &&
-                    this.selectedIndex !== index
-                ) {
-                    this.resetElementFromSelectedIndex(element, index);
-                }
             }
         },
         hasChildren(element) {
@@ -116,19 +110,30 @@ export default {
                 this.isHorizontalTouch = true;
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
-                if (this.selectedIndex !== null) {
-                    this.resetElementFromSelectedIndex(event.target, index);
-                }
             }
             if (this.isHorizontalTouch && !this.isScrolling) {
                 if (this.playingAnimations[parseInt(index)]) {
+                    console.log("animation was playing");
+
                     clearTimeout(this.playingAnimations[parseInt(index)]);
 
-                    console.log("animation is playing");
-
                     let pullItem = this.getParentPullItem(event.target);
+                    console.log(
+                        getComputedStyle(pullItem)
+                            .getPropertyValue("left")
+                            .replace("px", "")
+                    );
+
                     pullItem.style.transition = null;
                     pullItem.children[1].style.transition = null;
+                    pullItem.style.left = getComputedStyle(pullItem)
+                        .getPropertyValue("left")
+                        .replace("px", "");
+                    pullItem.children[1].style.right = getComputedStyle(
+                        pullItem.children[1]
+                    )
+                        .getPropertyValue("right")
+                        .replace("px", "");
 
                     delete this.playingAnimations[parseInt(index)];
                 }
@@ -138,14 +143,6 @@ export default {
         setXYPositions(event) {
             this.posX = event.targetTouches[0].clientX;
             this.posY = event.targetTouches[0].pageY;
-        },
-        resetElementFromSelectedIndex(target, index) {
-            let element =
-                this.getParentPullItem(target).parentElement.children[
-                    this.selectedIndex
-                ];
-            this.resetItemPosition(element, index);
-            this.selectedIndex = null;
         },
         horizontalTouchMovement(event) {
             event.preventDefault();
@@ -190,8 +187,7 @@ export default {
                     !this.pullIsComplete) ||
                 this.pullIsComplete
             ) {
-                // console.log("finishPull");
-                this.moveItem(element, -this.pullThreshold, index);
+                this.animateItem(element, -this.pullThreshold, index);
                 this.selectedIndex = index;
             } else if (
                 (event.target.className.match(/pull-item/) &&
@@ -208,21 +204,30 @@ export default {
             this.pullIsComplete = false;
         },
         resetItemPosition(pullItem, index) {
-            this.moveItem(pullItem, 0, index);
+            this.animateItem(pullItem, 0, index);
         },
-        moveItem(pullItem, left, index) {
+        animateItem(pullItem, left, index) {
             if (this.playingAnimations[parseInt(index)]) {
                 clearTimeout(this.playingAnimations);
 
                 pullItem.style.transition = null;
                 pullItem.children[1].style.transition = null;
+                pullItem.style.left = getComputedStyle(pullItem)
+                    .getPropertyValue("left")
+                    .replace("px", "");
+                pullItem.children[1].style.right = getComputedStyle(
+                    pullItem.children[1]
+                )
+                    .getPropertyValue("right")
+                    .replace("px", "");
+
                 delete this.playingAnimations[parseInt(index)];
             }
 
-            let duration = 400;
-            pullItem.style.transition = "left ease " + duration / 1000 + "s";
+            let duration = 5000;
+            pullItem.style.transition = "left " + duration / 1000 + "s";
             pullItem.children[1].style.transition =
-                "right ease " + duration / 1000 + "s";
+                "right " + duration / 1000 + "s";
             pullItem.style.left = left + "px";
             pullItem.children[1].style.right = left + "px";
 
@@ -234,13 +239,6 @@ export default {
                     delete this.playingAnimations[parseInt(index)];
                 }
             }, duration);
-
-            // window.setTimeout(function () {
-            //     pullItem.style.transition = null;
-            //     pullItem.children[1].style.transition = null;
-
-            //     // console.log("end");
-            // }, duration);
         }
     },
     mounted() {
