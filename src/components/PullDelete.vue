@@ -19,26 +19,25 @@ export default {
     data() {
         return {
             items: [0, 0, 0, 0, 0],
-            posX: 0,
-            divX: 0,
             diffX: 0,
-            startPosX: 0,
-            posY: 0,
-            divY: 0,
-            startPosY: 0,
             elIsMoving: false,
-            isScrolling: false
+            isScrolling: false,
+
+            currentX: 0,
+            initialX: 0,
+            initialY: 0,
+            pullItemX: 0
         };
     },
     computed: {
         movePos() {
-            return this.posX - this.diffX;
+            return this.currentX - this.diffX;
         },
         passXThreshold() {
-            return this.passMoveThresh(this.startPosX, this.posX);
+            return this.passMoveThresh(this.initialX, this.currentX);
         },
         passYThreshold() {
-            return this.passMoveThresh(this.startPosY, this.posY);
+            return this.passMoveThresh(this.initialY, this.currentY);
         }
     },
     methods: {
@@ -46,22 +45,20 @@ export default {
             return Math.abs(currentPos - initialPos) > 2;
         },
         touchStart(event) {
-            this.posX = event.targetTouches[0].clientX;
-            this.startPosX = this.posX;
-            this.startPosY = event.targetTouches[0].pageY;
-            this.divX = event.target.style.left.replace("px", "");
-            this.diffX = this.posX - this.divX;
-        },
-        moveBlockToTouchPos(event) {
-            let target = event.target;
-            target.style.left = this.movePos + "px";
+            this.initialX = event.targetTouches[0].clientX;
+            this.currentX = this.initialX;
+
+            this.initialY = event.targetTouches[0].pageY;
+            this.pullItemX = event.target.style.left.replace("px", "");
+            this.diffX = this.currentX - this.pullItemX;
         },
         touchMove(event) {
             if (this.elIsMoving) {
                 event.preventDefault();
             }
 
-            this.setXYPositions(event);
+            this.currentX = event.targetTouches[0].clientX;
+            this.currentY = event.targetTouches[0].pageY;
 
             if (this.passXThreshold && !this.isScrolling) {
                 this.horizontalTouchMovement(event);
@@ -69,14 +66,16 @@ export default {
                 this.isScrolling = true;
             }
         },
-        setXYPositions(event) {
-            this.posX = event.targetTouches[0].clientX;
-            this.posY = event.targetTouches[0].pageY;
-        },
         horizontalTouchMovement(event) {
             event.preventDefault();
             this.elIsMoving = true;
             this.moveBlockToTouchPos(event);
+        },
+        moveBlockToTouchPos(event) {
+            console.log(this.movePos);
+
+            let target = event.target;
+            target.style.left = this.movePos + "px";
         },
         touchEnd() {
             this.elIsMoving = false;
