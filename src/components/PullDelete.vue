@@ -26,7 +26,9 @@ export default {
             currentX: 0,
             initialX: 0,
             initialY: 0,
-            pullItemX: 0
+            pullItemX: 0,
+
+            targetPullItem: null
         };
     },
     computed: {
@@ -48,8 +50,9 @@ export default {
             this.initialX = event.targetTouches[0].clientX;
             this.currentX = this.initialX;
 
+            this.targetPullItem = event.target;
             this.initialY = event.targetTouches[0].pageY;
-            this.pullItemX = event.target.style.left.replace("px", "");
+            this.pullItemX = this.targetPullItem.style.left.replace("px", "");
             this.diffX = this.currentX - this.pullItemX;
         },
         touchMove(event) {
@@ -61,21 +64,16 @@ export default {
             this.currentY = event.targetTouches[0].pageY;
 
             if (this.passXThreshold && !this.isScrolling) {
-                this.horizontalTouchMovement(event);
+                this.horizontalTouchEvent(event);
             } else if (this.passYThreshold && !this.elIsMoving) {
                 this.isScrolling = true;
             }
         },
-        horizontalTouchMovement(event) {
+        horizontalTouchEvent(event) {
             event.preventDefault();
             this.elIsMoving = true;
-            this.moveBlockToTouchPos(event);
-        },
-        moveBlockToTouchPos(event) {
-            console.log(this.movePos);
 
-            let target = event.target;
-            target.style.left = this.movePos + "px";
+            this.targetPullItem.style.left = this.currentX - this.diffX + "px";
         },
         touchEnd() {
             this.elIsMoving = false;
