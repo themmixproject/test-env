@@ -9,7 +9,9 @@
             @touchend="touchEnd($event, index)"
         >
             <div class="pull-content">Pull to delete item</div>
-            <div class="pull-button"></div>
+            <div class="pull-button-container">
+                <div class="pull-button">Delete</div>
+            </div>
         </div>
     </div>
 </template>
@@ -32,7 +34,8 @@ export default {
             },
             pullItemX: 0,
 
-            targetPullItem: null
+            targetPullItem: null,
+            targetPullButton: null
         };
     },
     computed: {
@@ -59,6 +62,9 @@ export default {
 
             this.currentPos.x = this.initialPos.x;
             this.targetPullItem = this.getTargetPullItem(event.target);
+            this.targetPullButton = this.targetPullItem.getElementsByClassName(
+                "pull-button-container"
+            )[0];
 
             this.pullItemX = this.targetPullItem.style.left.replace("px", "");
             this.diffX = this.currentPos.x - this.pullItemX;
@@ -83,6 +89,7 @@ export default {
 
             let movePosition = this.currentPos.x - this.diffX;
             this.targetPullItem.style.left = movePosition + "px";
+            this.targetPullButton.style.right = movePosition + "px";
         },
         touchEnd() {
             this.elIsMoving = false;
@@ -111,5 +118,21 @@ export default {
     box-sizing: border-box;
     position: relative;
     // touch-action: none;
+}
+
+.pull-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 0 10px;
+}
+
+.pull-button-container {
+    background-color: red;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    bottom: 0;
 }
 </style>
