@@ -8,7 +8,7 @@
             @touchmove="touchMove($event, index)"
             @touchend="touchEnd($event, index)"
         >
-            Pull to delete item
+            <div class="pull-content">Pull to delete item</div>
             <div class="pull-button"></div>
         </div>
     </div>
@@ -22,46 +22,54 @@ export default {
             diffX: 0,
             elIsMoving: false,
             isScrolling: false,
-
-            currentX: 0,
-            initialX: 0,
-            initialY: 0,
+            initialPos: {
+                x: 0,
+                y: 0
+            },
+            currentPos: {
+                x: 0,
+                y: 0
+            },
             pullItemX: 0,
 
             targetPullItem: null
         };
     },
     computed: {
-        movePos() {
-            return this.currentX - this.diffX;
-        },
         passXThreshold() {
-            return this.passMoveThresh(this.initialX, this.currentX);
+            return this.passMoveThresh(this.initialPos.x, this.currentPos.x);
         },
         passYThreshold() {
-            return this.passMoveThresh(this.initialY, this.currentY);
+            return this.passMoveThresh(this.initialPos.y, this.currentPos.y);
         }
     },
     methods: {
+        getTargetPullItem(element) {
+            if (element.className.match(/pull-item$/)) {
+                return element;
+            }
+            return this.getTargetPullItem(element.parentElement);
+        },
         passMoveThresh(initialPos, currentPos) {
             return Math.abs(currentPos - initialPos) > 2;
         },
         touchStart(event) {
-            this.initialX = event.targetTouches[0].clientX;
-            this.currentX = this.initialX;
+            this.initialPos.x = event.targetTouches[0].clientX;
+            this.initialPos.y = event.targetTouches[0].pageY;
 
-            this.targetPullItem = event.target;
-            this.initialY = event.targetTouches[0].pageY;
+            this.currentPos.x = this.initialPos.x;
+            this.targetPullItem = this.getTargetPullItem(event.target);
+
             this.pullItemX = this.targetPullItem.style.left.replace("px", "");
-            this.diffX = this.currentX - this.pullItemX;
+            this.diffX = this.currentPos.x - this.pullItemX;
         },
         touchMove(event) {
             if (this.elIsMoving) {
                 event.preventDefault();
             }
 
-            this.currentX = event.targetTouches[0].clientX;
-            this.currentY = event.targetTouches[0].pageY;
+            this.currentPos.x = event.targetTouches[0].clientX;
+            this.currentPos.y = event.targetTouches[0].pageY;
 
             if (this.passXThreshold && !this.isScrolling) {
                 this.horizontalTouchEvent(event);
@@ -73,7 +81,8 @@ export default {
             event.preventDefault();
             this.elIsMoving = true;
 
-            this.targetPullItem.style.left = this.currentX - this.diffX + "px";
+            let movePosition = this.currentPos.x - this.diffX;
+            this.targetPullItem.style.left = movePosition + "px";
         },
         touchEnd() {
             this.elIsMoving = false;
