@@ -35,7 +35,9 @@ export default {
             pullItemX: 0,
 
             targetPullItem: null,
-            targetPullButton: null
+            targetPullButton: null,
+
+            pullThreshold: 0
         };
     },
     computed: {
@@ -95,6 +97,15 @@ export default {
             this.elIsMoving = false;
             this.isScrolling = false;
             this.scrollingIsActivated = false;
+    mounted() {
+        let pullContainer = document.getElementById("pull-container");
+        let pullContainerHasChildren = pullContainer.children.length > 0;
+
+        if (pullContainerHasChildren) {
+            let button = pullContainer.getElementsByClassName(
+                "pull-button-container"
+            )[0];
+            this.pullThreshold = button.offsetWidth;
         }
     }
 };
