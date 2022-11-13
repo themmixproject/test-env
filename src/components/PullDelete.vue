@@ -97,6 +97,25 @@ export default {
             this.elIsMoving = false;
             this.isScrolling = false;
             this.scrollingIsActivated = false;
+
+            this.autoAdjustTargetPullItem();
+        },
+        autoAdjustTargetPullItem() {
+            let pullItemLeft = this.targetPullItem.style.left.replace("px", "");
+            let absOffset = Math.abs(pullItemLeft);
+
+            let pastThreshold = absOffset > this.pullThreshold / 2;
+            if (pastThreshold) {
+                this.setPullItemOffset(-this.pullThreshold);
+            } else {
+                this.setPullItemOffset(0);
+            }
+        },
+        setPullItemOffset(offset) {
+            this.targetPullItem.style.left = offset + "px";
+            this.targetPullButton.style.right = offset + "px";
+        }
+    },
     mounted() {
         let pullContainer = document.getElementById("pull-container");
         let pullContainerHasChildren = pullContainer.children.length > 0;
