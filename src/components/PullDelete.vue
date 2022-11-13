@@ -105,10 +105,17 @@ export default {
 
             let pastThreshold = absOffset > this.pullThreshold / 2;
             if (pastThreshold) {
-                this.setPullItemOffset(-this.pullThreshold);
+                this.animatePullItem(-this.pullThreshold);
             } else {
-                this.setPullItemOffset(0);
+                this.animatePullItem(0);
             }
+        },
+        animatePullItem(offset) {
+            this.targetPullItem.style.transition = "left ease 1s";
+            this.targetPullButton.style.transition = "right ease 1s";
+
+            this.targetPullItem.style.left = offset + "px";
+            this.targetPullButton.style.right = offset + "px";
         },
         setPullItemOffset(offset) {
             this.targetPullItem.style.left = offset + "px";
