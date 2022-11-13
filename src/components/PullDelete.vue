@@ -68,8 +68,21 @@ export default {
                 "pull-button-container"
             )[0];
 
+            this.stopTargetPullItemTransition();
+
             this.pullItemX = this.targetPullItem.style.left.replace("px", "");
             this.diffX = this.currentPos.x - this.pullItemX;
+        },
+        stopTargetPullItemTransition() {
+            let pullItemPos = this.targetPullItem.getBoundingClientRect();
+            let buttonPos = this.targetPullButton.getBoundingClientRect();
+            let offsetRight = window.innerWidth - buttonPos.left;
+
+            this.targetPullItem.style.left = pullItemPos.left + "px";
+            this.targetPullButton.style.right = -offsetRight + "px";
+
+            this.targetPullItem.style.transition = null;
+            this.targetPullButton.style.transition = null;
         },
         touchMove(event) {
             if (this.elIsMoving) {
