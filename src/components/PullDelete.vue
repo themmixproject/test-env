@@ -90,8 +90,7 @@ export default {
             this.elIsMoving = true;
 
             let movePosition = this.currentPos.x - this.diffX;
-            this.targetPullItem.style.left = movePosition + "px";
-            this.targetPullButton.style.right = movePosition + "px";
+            this.setPullItemOffset(movePosition);
         },
         touchEnd() {
             this.elIsMoving = false;
