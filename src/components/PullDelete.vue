@@ -106,20 +106,22 @@ export default {
             this.setPullItemOffset(movePosition);
         },
         touchEnd() {
+            this.autoAdjustTargetPullItem();
+
             this.elIsMoving = false;
             this.isScrolling = false;
             this.scrollingIsActivated = false;
-
-            this.autoAdjustTargetPullItem();
         },
         autoAdjustTargetPullItem() {
             let pullItemLeft = this.targetPullItem.style.left.replace("px", "");
-            let absOffset = Math.abs(pullItemLeft);
+            let pastThreshold = -pullItemLeft > this.pullThreshold / 2;
 
-            let pastThreshold = absOffset > this.pullThreshold / 2;
-            if (pastThreshold) {
+            if (pastThreshold && this.elIsMoving) {
                 this.animatePullItem(-this.pullThreshold);
-            } else {
+            } else if (
+                !this.elIsMoving ||
+                (this.elIsMoving && !pastThreshold)
+            ) {
                 this.animatePullItem(0);
             }
         },
