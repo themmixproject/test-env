@@ -105,6 +105,13 @@ export default {
             let movePosition = this.currentPos.x - this.diffX;
             this.setPullItemOffset(movePosition);
         },
+        applyFriction(startPos, currentPos) {
+            let friction = 0.8;
+            let pullDistance = Math.abs(currentPos) - startPos;
+            let pos = startPos + pullDistance ** friction;
+
+            return -pos;
+        },
         setPullItemOffset(offset) {
             this.targetPullItem.style.left = offset + "px";
             this.targetPullButton.style.right = offset + "px";
