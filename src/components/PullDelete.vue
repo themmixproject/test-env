@@ -105,6 +105,10 @@ export default {
             let movePosition = this.currentPos.x - this.diffX;
             this.setPullItemOffset(movePosition);
         },
+        setPullItemOffset(offset) {
+            this.targetPullItem.style.left = offset + "px";
+            this.targetPullButton.style.right = offset + "px";
+        },
         touchEnd() {
             this.autoAdjustTargetPullItem();
 
@@ -129,12 +133,7 @@ export default {
             this.targetPullItem.style.transition = "left ease 1s";
             this.targetPullButton.style.transition = "right ease 1s";
 
-            this.targetPullItem.style.left = offset + "px";
-            this.targetPullButton.style.right = offset + "px";
-        },
-        setPullItemOffset(offset) {
-            this.targetPullItem.style.left = offset + "px";
-            this.targetPullButton.style.right = offset + "px";
+            this.setPullItemOffset(offset);
         }
     },
     mounted() {
