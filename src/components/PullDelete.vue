@@ -117,15 +117,12 @@ export default {
         applyFriction(movePos, relativePos) {
             let friction = 0.8;
 
-            if (movePos > 0) {
-                let pullDistance = movePos + relativePos;
-                let pos = relativePos + pullDistance ** friction;
+            let pullDistance = -(movePos + relativePos);
+            let pos = relativePos + Math.abs(pullDistance) ** friction;
 
+            if (movePos > 0) {
                 return pos;
             } else {
-                let pullDistance = -(movePos + relativePos);
-                let pos = relativePos + pullDistance ** friction;
-
                 return -pos;
             }
         },
