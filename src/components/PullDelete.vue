@@ -116,15 +116,18 @@ export default {
         },
         applyFriction(movePos, relativePos) {
             let friction = 0.8;
-            let pos = 0;
-            if (movePos < 0) {
-                let pullDistance = -movePos + relativePos;
-                pos = relativePos + pullDistance ** friction;
-            } else {
-                console.log();
-            }
 
-            return -pos;
+            if (movePos > 0) {
+                let pullDistance = movePos + relativePos;
+                let pos = relativePos + pullDistance ** friction;
+
+                return pos;
+            } else {
+                let pullDistance = -(movePos + relativePos);
+                let pos = relativePos + pullDistance ** friction;
+
+                return -pos;
+            }
         },
         setPullItemOffset(offset) {
             this.targetPullItem.style.left = offset + "px";
