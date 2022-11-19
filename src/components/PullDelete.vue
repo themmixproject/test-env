@@ -103,12 +103,26 @@ export default {
             this.elIsMoving = true;
 
             let movePosition = this.currentPos.x - this.diffX;
+
+            if (movePosition < -this.pullThreshold) {
+                movePosition = this.applyFriction(
+                    movePosition,
+                    this.pullThreshold
+                );
+            } else if (movePosition > 0) {
+                movePosition = this.applyFriction(movePosition, 0);
+            }
             this.setPullItemOffset(movePosition);
         },
-        applyFriction(startPos, currentPos) {
+        applyFriction(movePos, relativePos) {
             let friction = 0.8;
-            let pullDistance = Math.abs(currentPos) - startPos;
-            let pos = startPos + pullDistance ** friction;
+            let pos = 0;
+            if (movePos < 0) {
+                let pullDistance = -movePos + relativePos;
+                pos = relativePos + pullDistance ** friction;
+            } else {
+                console.log();
+            }
 
             return -pos;
         },
