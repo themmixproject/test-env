@@ -139,10 +139,7 @@ export default {
 
             if (pastThreshold && this.elIsMoving) {
                 this.animatePullItem(-this.pullThreshold);
-            } else if (
-                !this.elIsMoving ||
-                (this.elIsMoving && !pastThreshold)
-            ) {
+            } else {
                 this.animatePullItem(0);
             }
         },
