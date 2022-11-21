@@ -117,14 +117,10 @@ export default {
         applyFriction(movePos, relativePos) {
             let friction = 0.8;
 
-            let pullDistance = -(movePos + relativePos);
+            let pullDistance = movePos + relativePos;
             let pos = relativePos + Math.abs(pullDistance) ** friction;
 
-            if (movePos > 0) {
-                return pos;
-            } else {
-                return -pos;
-            }
+            return Math.sign(movePos) * pos;
         },
         setPullItemOffset(offset) {
             this.targetPullItem.style.left = offset + "px";
