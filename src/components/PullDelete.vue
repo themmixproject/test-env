@@ -120,6 +120,7 @@ export default {
             let pullDistance = movePos + relativePos;
             let pos = relativePos + Math.abs(pullDistance) ** friction;
 
+            // tom did this
             return Math.sign(movePos) * pos;
         },
         setPullItemOffset(offset) {
