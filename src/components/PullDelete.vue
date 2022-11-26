@@ -20,7 +20,10 @@
 export default {
     data() {
         return {
-            items: [0, 0, 0, 0, 0],
+            items: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
             diffX: 0,
             elIsMoving: false,
             isScrolling: false,
@@ -36,6 +39,9 @@ export default {
 
             targetPullItem: null,
             targetPullButton: null,
+
+            selectedPullItem: null,
+            selectedPullButton: null,
 
             pullThreshold: 0
         };
@@ -58,6 +64,10 @@ export default {
         passMoveThresh(initialPos, currentPos) {
             return Math.abs(currentPos - initialPos) > 2;
         },
+        pullItemPastThreshold() {
+            let pullItemLeft = this.targetPullItem.style.left.replace("px", "");
+            return -pullItemLeft > this.pullThreshold / 2;
+        },
         touchStart(event) {
             this.initialPos.x = event.targetTouches[0].clientX;
             this.initialPos.y = event.targetTouches[0].pageY;
@@ -70,8 +80,22 @@ export default {
 
             this.stopTargetPullItemTransition();
 
+            let notSelected = !this.targetPullButton.hasAttribute("selected");
+            if (notSelected && this.selectedPullItem) {
+                this.resetSelectedPullItem();
+            }
+
             this.pullItemX = this.targetPullItem.style.left.replace("px", "");
             this.diffX = this.currentPos.x - this.pullItemX;
+        },
+        resetSelectedPullItem() {
+            this.selectedPullItem.removeAttribute("selected");
+
+            this.selectedPullItem.style.transition = "left ease 0.5s";
+            this.selectedPullButton.style.transition = "right ease 0.5s";
+
+            this.selectedPullItem.style.left = 0 + "px";
+            this.selectedPullButton.style.right = 0 + "px";
         },
         stopTargetPullItemTransition() {
             let pullItemPos = this.targetPullItem.getBoundingClientRect();
@@ -130,23 +154,30 @@ export default {
         touchEnd() {
             this.autoAdjustTargetPullItem();
 
+            if (this.pullItemPastThreshold()) {
+                this.setSelectedPullItem();
+            }
+
             this.elIsMoving = false;
             this.isScrolling = false;
             this.scrollingIsActivated = false;
         },
-        autoAdjustTargetPullItem() {
-            let pullItemLeft = this.targetPullItem.style.left.replace("px", "");
-            let pastThreshold = -pullItemLeft > this.pullThreshold / 2;
+        setSelectedPullItem() {
+            this.targetPullItem.setAttribute("selected", "");
 
-            if (pastThreshold && this.elIsMoving) {
+            this.selectedPullItem = this.targetPullItem;
+            this.selectedPullButton = this.targetPullButton;
+        },
+        autoAdjustTargetPullItem() {
+            if (this.pullItemPastThreshold() && this.elIsMoving) {
                 this.animatePullItem(-this.pullThreshold);
             } else {
                 this.animatePullItem(0);
             }
         },
         animatePullItem(offset) {
-            this.targetPullItem.style.transition = "left ease 1s";
-            this.targetPullButton.style.transition = "right ease 1s";
+            this.targetPullItem.style.transition = "left ease 0.5s";
+            this.targetPullButton.style.transition = "right ease 0.5s";
 
             this.setPullItemOffset(offset);
         }
