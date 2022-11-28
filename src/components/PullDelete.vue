@@ -108,10 +108,6 @@ export default {
             this.targetPullButton.style.transition = null;
         },
         touchMove(event) {
-            if (this.elIsMoving) {
-                event.preventDefault();
-            }
-
             this.currentPos.x = event.targetTouches[0].clientX;
             this.currentPos.y = event.targetTouches[0].pageY;
 
