@@ -78,12 +78,11 @@ export default {
                 "pull-button-container"
             )[0];
 
-            this.stopTargetPullItemTransition();
-
-            let notSelected = !this.targetPullButton.hasAttribute("selected");
+            let notSelected = !this.targetPullItem.hasAttribute("selected");
             if (notSelected && this.selectedPullItem) {
                 this.resetSelectedPullItem();
             }
+            this.stopTargetPullItemTransition();
 
             this.pullItemX = this.targetPullItem.style.left.replace("px", "");
             this.diffX = this.currentPos.x - this.pullItemX;
