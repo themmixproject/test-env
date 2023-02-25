@@ -74,9 +74,10 @@ export default {
 
             this.currentPos.x = this.initialPos.x;
             this.targetPullItem = this.getTargetPullItem(event.target);
-            this.targetPullButton = this.targetPullItem.getElementsByClassName(
-                "pull-button-container"
-            )[0];
+            this.targetPullItem.button =
+                this.targetPullItem.getElementsByClassName(
+                    "pull-button-container"
+                )[0];
 
             let notSelected = !this.targetPullItem.hasAttribute("selected");
             if (notSelected && this.selectedPullItem) {
@@ -89,23 +90,18 @@ export default {
         },
         resetSelectedPullItem() {
             this.selectedPullItem.removeAttribute("selected");
-
-            this.selectedPullItem.style.transition = "left ease 0.5s";
-            this.selectedPullButton.style.transition = "right ease 0.5s";
-
-            this.selectedPullItem.style.left = 0 + "px";
-            this.selectedPullButton.style.right = 0 + "px";
+            this.animatePullItem(this.selectedPullItem, 0);
         },
         stopTargetPullItemTransition() {
             let pullItemPos = this.targetPullItem.getBoundingClientRect();
-            let buttonPos = this.targetPullButton.getBoundingClientRect();
+            let buttonPos = this.targetPullItem.button.getBoundingClientRect();
             let offsetRight = window.innerWidth - buttonPos.left;
 
             this.targetPullItem.style.left = pullItemPos.left + "px";
-            this.targetPullButton.style.right = -offsetRight + "px";
+            this.targetPullItem.button.style.right = -offsetRight + "px";
 
             this.targetPullItem.style.transition = null;
-            this.targetPullButton.style.transition = null;
+            this.targetPullItem.button.style.transition = null;
         },
         touchMove(event) {
             this.currentPos.x = event.targetTouches[0].clientX;
@@ -131,7 +127,7 @@ export default {
             } else if (movePosition > 0) {
                 movePosition = this.applyFriction(movePosition, 0);
             }
-            this.setPullItemOffset(movePosition);
+            this.setPullItemOffset(this.targetPullItem, movePosition);
         },
         applyFriction(movePos, relativePos) {
             let friction = 0.8;
@@ -142,9 +138,9 @@ export default {
             // tom did this
             return Math.sign(movePos) * pos;
         },
-        setPullItemOffset(offset) {
-            this.targetPullItem.style.left = offset + "px";
-            this.targetPullButton.style.right = offset + "px";
+        setPullItemOffset(pullItem, offset) {
+            pullItem.style.left = offset + "px";
+            pullItem.button.style.right = offset + "px";
         },
         touchEnd() {
             this.autoAdjustTargetPullItem();
@@ -161,20 +157,20 @@ export default {
             this.targetPullItem.setAttribute("selected", "");
 
             this.selectedPullItem = this.targetPullItem;
-            this.selectedPullButton = this.targetPullButton;
+            this.selectedPullItem.button = this.targetPullItem.button;
         },
         autoAdjustTargetPullItem() {
             if (this.pullItemPastThreshold() && this.elIsMoving) {
-                this.animatePullItem(-this.pullThreshold);
+                this.animatePullItem(this.targetPullItem, -this.pullThreshold);
             } else {
-                this.animatePullItem(0);
+                this.animatePullItem(this.targetPullItem, 0);
             }
         },
-        animatePullItem(offset) {
-            this.targetPullItem.style.transition = "left ease 0.5s";
-            this.targetPullButton.style.transition = "right ease 0.5s";
+        animatePullItem(pullItem, offset) {
+            pullItem.style.transition = "left ease 0.5s";
+            pullItem.button.style.transition = "right ease 0.5s";
 
-            this.setPullItemOffset(offset);
+            this.setPullItemOffset(pullItem, offset);
         }
     },
     mounted() {
