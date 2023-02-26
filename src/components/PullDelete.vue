@@ -194,7 +194,7 @@ export default {
 
 .pull-item {
     text-align: center;
-    font-size: 5em;
+    font-size: 3em;
     font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif;
     border-color: #b8bcba;
@@ -212,6 +212,8 @@ export default {
     flex-direction: column;
     justify-content: center;
     height: 100%;
+    font-size: 0.8em;
+    color: white;
     padding: 0 10px;
 }
 
