@@ -1,7 +1,14 @@
 <template>
     <div id="terminal-container">
-        $~:> Hello World <input class="terminal-input" type="text" />
+        <div class="terminal-line">
+            <div class="terminal-prefix">$~:>&nbsp;</div>
+            Hello World
+        </div>
     </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.terminal-line {
+    display: flex;
+}
+</style>
