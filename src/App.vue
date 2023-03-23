@@ -30,7 +30,7 @@ input {
     font-size: inherit;
     padding: 0;
     outline: 0;
-    // background-color: black;
+    background-color: black;
     color: white;
 }
 </style>
