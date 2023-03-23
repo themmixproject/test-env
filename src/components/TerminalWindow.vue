@@ -1,14 +1,15 @@
 <template>
     <div id="terminal-container">
-        <div class="terminal-line">
-            <div class="terminal-prefix">$~:>&nbsp;</div>
-            Hello World
-        </div>
+        <terminal-prompt></terminal-prompt>
     </div>
 </template>
 
-<style lang="scss" scoped>
-.terminal-line {
-    display: flex;
-}
-</style>
+<script>
+import TerminalPrompt from "./TerminalPrompt.vue";
+
+export default {
+    components: {
+        TerminalPrompt
+    }
+};
+</script>
