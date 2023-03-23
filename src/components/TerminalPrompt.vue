@@ -1,7 +1,9 @@
 <template>
     <terminal-line
         ><slot>Question :</slot>
-        <input type="text" v-model="promptValue" />
+        <form @submit="submitThis($event)">
+            <input type="text" id="prompt-input" />
+        </form>
     </terminal-line>
 </template>
 
@@ -13,6 +15,13 @@ export default {
         return {
             promptValue: ""
         };
+    },
+    methods: {
+        submitThis(event) {
+            event.preventDefault();
+            console.log("hello world!");
+            document.getElementById("prompt-input").style.color = "red";
+        }
     },
     components: {
         TerminalLine
